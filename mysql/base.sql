@@ -3,14 +3,14 @@ create database hospital;
 use hospital;
 
 CREATE TABLE Medico (
-    Cedula INT,
+    Cedula varchar(20),
     Nombre TEXT,
     Cedula_especialidad TEXT,
     PRIMARY KEY (Cedula)
 );
 
 CREATE TABLE Persona (
-    Curp INT,
+    Curp varchar(30),
     Nombre VARCHAR(150),
     Fecha_nacimiento DATE,
     Grupo_Sanguineo VARCHAR(150),
@@ -35,7 +35,7 @@ CREATE TABLE Persona (
 );
 
 CREATE TABLE Historial_clinico (
-    Id INT,
+    Id INT auto_increment,
     Edad INT,
     Motivo_consulta TEXT,
     Padecimiento_actual TEXT,
@@ -44,8 +44,8 @@ CREATE TABLE Historial_clinico (
     Tratamiento TEXT,
     Fecha TIMESTAMP,
     Interrogatorio BOOLEAN,
-    Curp_persona INT,
-    Cedula_medico INT,
+    Curp_persona varchar(30),
+    Cedula_medico varchar(20),
     PRIMARY KEY (Id)
 );
 
@@ -210,3 +210,88 @@ FOREIGN KEY (Id_historial_clinico) REFERENCES Historial_clinico(Id);
 ALTER TABLE Exploracion_fisica
 ADD CONSTRAINT fk_exploracion_historial
 FOREIGN KEY (Id_historial_clinico) REFERENCES Historial_clinico(Id);
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarHistorialClinico (
+    IN p_edad INT,
+    IN p_motivo_consulta TEXT,
+    IN p_padecimiento_actual TEXT,
+    IN p_resultado_laboratorio TEXT,
+    IN p_diagnosticos TEXT,
+    IN p_tratamiento TEXT,
+    IN p_fecha date,
+    IN p_interrogatorio BOOLEAN,
+    IN p_curp_persona VARCHAR(30),
+    IN p_cedula_medico VARCHAR(20),
+    OUT p_id INT
+)
+BEGIN
+    INSERT INTO Historial_clinico (
+        Edad,
+        Motivo_consulta,
+        Padecimiento_actual,
+        Resultado_laboratorio,
+        Diagnosticos,
+        Tratamiento,
+        Fecha,
+        Interrogatorio,
+        Curp_persona,
+        Cedula_medico
+    ) 
+    VALUES (
+        p_edad,
+        p_motivo_consulta,
+        p_padecimiento_actual,
+        p_resultado_laboratorio,
+        p_diagnosticos,
+        p_tratamiento,
+        p_fecha,
+        p_interrogatorio,
+        p_curp_persona,
+        p_cedula_medico
+    );
+
+    SET p_id = LAST_INSERT_ID();
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarPersona(
+    IN p_curp VARCHAR(30),
+    IN p_nombre VARCHAR(150),
+    IN p_fecha_nacimiento DATE,
+    IN p_grupo_sanguineo VARCHAR(150),
+    IN p_jurisdiccion VARCHAR(150),
+    IN p_escolaridad VARCHAR(150),
+    IN p_edad INT,
+    IN p_sexo VARCHAR(150),
+    IN p_estado_civil VARCHAR(150),
+    IN p_ocupacion VARCHAR(150),
+    IN p_tipo_seguro VARCHAR(150),
+    IN p_calle VARCHAR(150),
+    IN p_num INT,
+    IN p_colonia VARCHAR(150),
+    IN p_municipio VARCHAR(150),
+    IN p_lugar_procedencia VARCHAR(150),
+    IN p_telefono BIGINT,
+    IN p_ageb VARCHAR(150),
+    IN p_alergia BOOLEAN,
+    IN p_tipo_alergia VARCHAR(150),
+    IN p_id_unidad_medica INT
+)
+BEGIN
+    INSERT INTO Persona (
+        Curp, Nombre, Fecha_nacimiento, Grupo_Sanguineo, Jurisdiccion, Escolaridad, Edad, 
+        Sexo, Estado_civil, Ocupacion, Tipo_seguro, Calle, Num, Colonia, Municipio, 
+        Lugar_procedencia, Telefono, AGEB, Alergia, Tipo_alergia, Id_unidad_medica
+    ) VALUES (
+        p_curp, p_nombre, p_fecha_nacimiento, p_grupo_sanguineo, p_jurisdiccion, p_escolaridad, p_edad,
+        p_sexo, p_estado_civil, p_ocupacion, p_tipo_seguro, p_calle, p_num, p_colonia, p_municipio, 
+        p_lugar_procedencia, p_telefono, p_ageb, p_alergia, p_tipo_alergia, p_id_unidad_medica
+    );
+END $$
+
+DELIMITER ;

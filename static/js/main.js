@@ -20,7 +20,7 @@ fetch('/Insertar_historial_medico', {
     .then(response => response.json())
     .then(data => {
         if (data.Estado) {
-            document.getElementById('resultado').textContent = `El historial médico fue insertado con éxito. ID generado: ${data.ID}`;
+            document.getElementById('resultado').textContent = `El hinsertado con éxito. ID generado: ${data.ID}`;
         } else {
             document.getElementById('resultado').textContent = 'Error al insertar el historial médico.';
         }

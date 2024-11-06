@@ -50,7 +50,7 @@ CREATE TABLE Historial_clinico (
 );
 
 CREATE TABLE Antecedentes_Familiares (
-    Id INT,
+    Id INT auto_increment,
     Diabetes VARCHAR(150),
     HTA VARCHAR(150),
     Oncologicos VARCHAR(150),
@@ -73,7 +73,7 @@ CREATE TABLE Antecedentes_Familiares (
 );
 
 CREATE TABLE Antecedentes_no_patologicos (
-    Id INT,
+    Id INT auto_increment,
     Alimentacion VARCHAR(150),
     Cantidad_alimentacion VARCHAR(150),
     Fecuencia_alimentacion INT,
@@ -91,7 +91,7 @@ CREATE TABLE Antecedentes_no_patologicos (
 );
 
 CREATE TABLE Antecedentes_personales_patologicos (
-    Id INT,
+    Id INT auto_increment,
     Alergia VARCHAR(150),
     Reumatismo VARCHAR(150),
     Diabetes VARCHAR(150),
@@ -124,7 +124,7 @@ CREATE TABLE Antecedentes_personales_patologicos (
 );
 
 CREATE TABLE Antecedentes_gineco_obstetricos (
-    Id INT,
+    Id INT auto_increment,
     Menarca VARCHAR(150),
     Ritmo VARCHAR(150),
     Ivsa VARCHAR(150),
@@ -143,7 +143,7 @@ CREATE TABLE Antecedentes_gineco_obstetricos (
 );
 
 CREATE TABLE Interrogatorio_aparato_sistema (
-    Id INT,
+    Id INT auto_increment,
     Sistomas_generales TEXT,
     Respiratorio TEXT,
     Digestivo TEXT,
@@ -163,7 +163,7 @@ CREATE TABLE Interrogatorio_aparato_sistema (
 );
 
 CREATE TABLE Exploracion_fisica (
-    Id INT,
+    Id Int auto_increment,
     Pulso FLOAT,
     Temperatura FLOAT,
     Tension_arterial FLOAT,
@@ -211,6 +211,15 @@ ALTER TABLE Exploracion_fisica
 ADD CONSTRAINT fk_exploracion_historial
 FOREIGN KEY (Id_historial_clinico) REFERENCES Historial_clinico(Id);
 
+ALTER TABLE Historial_clinico DROP FOREIGN KEY fk_historial_medica;
+ALTER TABLE Historial_clinico DROP FOREIGN KEY fk_historial_medico;
+ALTER TABLE Antecedentes_Familiares DROP FOREIGN KEY fk_antecedentes_familiares_historial;
+ALTER TABLE Antecedentes_no_patologicos DROP FOREIGN KEY fk_antecedentes_no_patologicos_historial;
+ALTER TABLE Antecedentes_personales_patologicos DROP FOREIGN KEY fk_antecedentes_personales_historial;
+ALTER TABLE Antecedentes_gineco_obstetricos DROP FOREIGN KEY fk_antecedentes_gineco_historial;
+ALTER TABLE Interrogatorio_aparato_sistema DROP FOREIGN KEY fk_interrogatorio_historial;
+ALTER TABLE Exploracion_fisica DROP FOREIGN KEY fk_exploracion_historial;
+
 DELIMITER $$
 
 CREATE PROCEDURE InsertarHistorialClinico (
@@ -220,7 +229,7 @@ CREATE PROCEDURE InsertarHistorialClinico (
     IN p_resultado_laboratorio TEXT,
     IN p_diagnosticos TEXT,
     IN p_tratamiento TEXT,
-    IN p_fecha date,
+    IN p_fecha TIMESTAMP,
     IN p_interrogatorio BOOLEAN,
     IN p_curp_persona VARCHAR(30),
     IN p_cedula_medico VARCHAR(20),
@@ -251,7 +260,7 @@ BEGIN
         p_curp_persona,
         p_cedula_medico
     );
-
+    
     SET p_id = LAST_INSERT_ID();
 END$$
 
@@ -259,39 +268,420 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE InsertarPersona(
-    IN p_curp VARCHAR(30),
-    IN p_nombre VARCHAR(150),
-    IN p_fecha_nacimiento DATE,
-    IN p_grupo_sanguineo VARCHAR(150),
-    IN p_jurisdiccion VARCHAR(150),
-    IN p_escolaridad VARCHAR(150),
-    IN p_edad INT,
-    IN p_sexo VARCHAR(150),
-    IN p_estado_civil VARCHAR(150),
-    IN p_ocupacion VARCHAR(150),
-    IN p_tipo_seguro VARCHAR(150),
-    IN p_calle VARCHAR(150),
-    IN p_num INT,
-    IN p_colonia VARCHAR(150),
-    IN p_municipio VARCHAR(150),
-    IN p_lugar_procedencia VARCHAR(150),
-    IN p_telefono BIGINT,
-    IN p_ageb VARCHAR(150),
-    IN p_alergia BOOLEAN,
-    IN p_tipo_alergia VARCHAR(150),
-    IN p_id_unidad_medica INT
+CREATE PROCEDURE InsertarAntecedentesFamiliares(
+    IN p_diabetes VARCHAR(150),
+    IN p_hta VARCHAR(150),
+    IN p_oncologicos VARCHAR(150),
+    IN p_couagulopatias VARCHAR(150),
+    IN p_alta_genetica VARCHAR(150),
+    IN p_vih_sida BOOLEAN,
+    IN p_tuberculosis VARCHAR(150),
+    IN p_alergia VARCHAR(150),
+    IN p_cardiopatias VARCHAR(150),
+    IN p_obesidad VARCHAR(150),
+    IN p_artritis VARCHAR(150),
+    IN p_hemofilia VARCHAR(150),
+    IN p_mentales VARCHAR(150),
+    IN p_toxicomanias VARCHAR(150),
+    IN p_alcoholismo VARCHAR(150),
+    IN p_hiperlipidemias VARCHAR(150),
+    IN p_otro TEXT,
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
 )
 BEGIN
-    INSERT INTO Persona (
-        Curp, Nombre, Fecha_nacimiento, Grupo_Sanguineo, Jurisdiccion, Escolaridad, Edad, 
-        Sexo, Estado_civil, Ocupacion, Tipo_seguro, Calle, Num, Colonia, Municipio, 
-        Lugar_procedencia, Telefono, AGEB, Alergia, Tipo_alergia, Id_unidad_medica
-    ) VALUES (
-        p_curp, p_nombre, p_fecha_nacimiento, p_grupo_sanguineo, p_jurisdiccion, p_escolaridad, p_edad,
-        p_sexo, p_estado_civil, p_ocupacion, p_tipo_seguro, p_calle, p_num, p_colonia, p_municipio, 
-        p_lugar_procedencia, p_telefono, p_ageb, p_alergia, p_tipo_alergia, p_id_unidad_medica
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+        SET p_success = FALSE;
+
+    INSERT INTO Antecedentes_Familiares (
+        Diabetes, HTA, Oncologicos, Couagulopatias, Alta_genetica, Vih_sida,
+        Tuberculosis, Alergia, Cardiopatias, Obesidad, Artritis, Hemofilia,
+        Mentales, Toxicomanias, Alcoholismo, Hiperlipidemias, Otro, Id_historial_clinico
+    ) 
+    VALUES (
+        p_diabetes, p_hta, p_oncologicos, p_couagulopatias, p_alta_genetica, p_vih_sida,
+        p_tuberculosis, p_alergia, p_cardiopatias, p_obesidad, p_artritis, p_hemofilia,
+        p_mentales, p_toxicomanias, p_alcoholismo, p_hiperlipidemias, p_otro, p_id_historial_clinico
     );
-END $$
+
+    SET p_success = TRUE;
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarAntecedentesNoPatologicos (
+    IN p_alimentacion VARCHAR(150),
+    IN p_cantidad_alimentacion VARCHAR(150),
+    IN p_fecuencia_alimentacion INT,
+    IN p_habitos_higiene VARCHAR(150),
+    IN p_alcoholismo VARCHAR(150),
+    IN p_frecuencia_alcoholismo VARCHAR(150),
+    IN p_tabaquismo VARCHAR(150),
+    IN p_numero_cigarros VARCHAR(150),
+    IN p_drogas VARCHAR(150),
+    IN p_tipo_drogas VARCHAR(150),
+    IN p_inmunizaciones BOOLEAN,
+    IN p_tipo_inmunizaciones VARCHAR(150),
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO Antecedentes_no_patologicos (
+        Alimentacion,
+        Cantidad_alimentacion,
+        Fecuencia_alimentacion,
+        Habitos_higiene,
+        Alcoholismo,
+        Frecuencia_alcoholismo,
+        Tabaquismo,
+        Numero_cigarros,
+        Drogas,
+        Tipo_drogas,
+        Inmunizaciones,
+        Tipo_inmunizaciones,
+        Id_historial_clinico
+    ) 
+    VALUES (
+        p_alimentacion,
+        p_cantidad_alimentacion,
+        p_fecuencia_alimentacion,
+        p_habitos_higiene,
+        p_alcoholismo,
+        p_frecuencia_alcoholismo,
+        p_tabaquismo,
+        p_numero_cigarros,
+        p_drogas,
+        p_tipo_drogas,
+        p_inmunizaciones,
+        p_tipo_inmunizaciones,
+        p_id_historial_clinico
+    );
+
+    COMMIT;
+
+    SET p_success = TRUE;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarAntecedentesPersonalesPatologicos (
+    IN p_alergia VARCHAR(150),
+    IN p_reumatismo VARCHAR(150),
+    IN p_diabetes VARCHAR(150),
+    IN p_hipertensivo VARCHAR(150),
+    IN p_its VARCHAR(150),
+    IN p_vih_sida VARCHAR(150),
+    IN p_neurologico VARCHAR(150),
+    IN p_infeccion VARCHAR(150),
+    IN p_parasito_intestinal TEXT,
+    IN p_quirurgico TEXT,
+    IN p_hemotransfusion TEXT,
+    IN p_cardiopatias TEXT,
+    IN p_enf_renal TEXT,
+    IN p_cancer TEXT,
+    IN p_anemia TEXT,
+    IN p_hemorragias TEXT,
+    IN p_hepatitis TEXT,
+    IN p_neumopatias TEXT,
+    IN p_paludismo TEXT,
+    IN p_fibre_tifoidea TEXT,
+    IN p_brucelosis TEXT,
+    IN p_crisis_convulsivas TEXT,
+    IN p_enf_mental TEXT,
+    IN p_traumatico TEXT,
+    IN p_ulcera TEXT,
+    IN p_medicamento_actual TEXT,
+    IN p_otras_patologias TEXT,
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO Antecedentes_personales_patologicos (
+        Alergia,
+        Reumatismo,
+        Diabetes,
+        Hipertensivo,
+        ITS,
+        Vih_sida,
+        Neurologico,
+        Infeccion,
+        Parasito_intestinal,
+        Quirurgico,
+        Hemotransfusion,
+        Cardiopatias,
+        Enf_renal,
+        Cancer,
+        Anemia,
+        Hemorragias,
+        Hepatitis,
+        Neumopatias,
+        Paludismo,
+        Fibre_tifoidea,
+        Brucelosis,
+        Crisis_convulsivas,
+        Enf_mental,
+        Traumatico,
+        Ulcera,
+        Medicamento_actual,
+        Otras_patologias,
+        Id_historial_clinico
+    ) 
+    VALUES (
+        p_alergia,
+        p_reumatismo,
+        p_diabetes,
+        p_hipertensivo,
+        p_its,
+        p_vih_sida,
+        p_neurologico,
+        p_infeccion,
+        p_parasito_intestinal,
+        p_quirurgico,
+        p_hemotransfusion,
+        p_cardiopatias,
+        p_enf_renal,
+        p_cancer,
+        p_anemia,
+        p_hemorragias,
+        p_hepatitis,
+        p_neumopatias,
+        p_paludismo,
+        p_fibre_tifoidea,
+        p_brucelosis,
+        p_crisis_convulsivas,
+        p_enf_mental,
+        p_traumatico,
+        p_ulcera,
+        p_medicamento_actual,
+        p_otras_patologias,
+        p_id_historial_clinico
+    );
+
+    COMMIT;
+
+    SET p_success = TRUE;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarAntecedentesGinecoObstetricos (
+    IN p_menarca VARCHAR(150),
+    IN p_ritmo VARCHAR(150),
+    IN p_ivsa VARCHAR(150),
+    IN p_cs VARCHAR(150),
+    IN p_mp_f VARCHAR(150),
+    IN p_gesta VARCHAR(150),
+    IN p_para VARCHAR(150),
+    IN p_cesarea VARCHAR(150),
+    IN p_aborto VARCHAR(150),
+    IN p_fum VARCHAR(150),
+    IN p_doc VARCHAR(150),
+    IN p_docma VARCHAR(150),
+    IN p_antecedentes_peritenales VARCHAR(150),
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO Antecedentes_gineco_obstetricos (
+        Menarca,
+        Ritmo,
+        Ivsa,
+        Cs,
+        Mp_f,
+        Gesta,
+        Para,
+        Cesarea,
+        Aborto,
+        FUM,
+        DOC,
+        DOCMA,
+        Antecedentes_peritenales,
+        Id_historial_medico
+    ) 
+    VALUES (
+        p_menarca,
+        p_ritmo,
+        p_ivsa,
+        p_cs,
+        p_mp_f,
+        p_gesta,
+        p_para,
+        p_cesarea,
+        p_aborto,
+        p_fum,
+        p_doc,
+        p_docma,
+        p_antecedentes_peritenales,
+        p_id_historial_clinico
+    );
+
+    COMMIT;
+
+    SET p_success = TRUE;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarInterrogatorioAparatoSistema (
+    IN p_sistomas_generales TEXT,
+    IN p_respiratorio TEXT,
+    IN p_digestivo TEXT,
+    IN p_nervioso TEXT,
+    IN p_musculoesqueletico TEXT,
+    IN p_cardiovascular TEXT,
+    IN p_genitourinario TEXT,
+    IN p_endoctrico TEXT,
+    IN p_psiquico TEXT,
+    IN p_piel_mucosa TEXT,
+    IN p_organos_sentidos TEXT,
+    IN p_hematico_linfatico TEXT,
+    IN p_cabeza_cuello TEXT,
+    IN p_organos_reproductivos TEXT,
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO Interrogatorio_aparato_sistema (
+        Sistomas_generales,
+        Respiratorio,
+        Digestivo,
+        Nervioso,
+        Musculoesqueletico,
+        Cardiovascular,
+        Genitourinario,
+        Endoctrico,
+        Psiquico,
+        Piel_mucosa,
+        Organos_sentidos,
+        Hematico_linfatico,
+        Cabeza_cuello,
+        Organos_reproductivos,
+        Id_historial_clinico
+    ) 
+    VALUES (
+        p_sistomas_generales,
+        p_respiratorio,
+        p_digestivo,
+        p_nervioso,
+        p_musculoesqueletico,
+        p_cardiovascular,
+        p_genitourinario,
+        p_endoctrico,
+        p_psiquico,
+        p_piel_mucosa,
+        p_organos_sentidos,
+        p_hematico_linfatico,
+        p_cabeza_cuello,
+        p_organos_reproductivos,
+        p_id_historial_clinico
+    );
+
+    COMMIT;
+
+    SET p_success = TRUE;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertarExploracionFisica (
+    IN p_pulso FLOAT,
+    IN p_temperatura FLOAT,
+    IN p_tension_arterial FLOAT,
+    IN p_frecuencia_cardiaca FLOAT,
+    IN p_frecuencia_respiratoria FLOAT,
+    IN p_cabeza TEXT,
+    IN p_cuello TEXT,
+    IN p_torax TEXT,
+    IN p_abdomen TEXT,
+    IN p_miembros TEXT,
+    IN p_genitales TEXT,
+    IN p_id_historial_clinico INT,
+    OUT p_success BOOLEAN
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_success = FALSE;
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO Exploracion_fisica (
+        Pulso,
+        Temperatura,
+        Tension_arterial,
+        Frecuencia_cardiaca,
+        Frecuencia_respiratoria,
+        Cabeza,
+        Cuello,
+        Torax,
+        Abdomen,
+        Miembros,
+        Genitales,
+        Id_historial_clinico
+    ) 
+    VALUES (
+        p_pulso,
+        p_temperatura,
+        p_tension_arterial,
+        p_frecuencia_cardiaca,
+        p_frecuencia_respiratoria,
+        p_cabeza,
+        p_cuello,
+        p_torax,
+        p_abdomen,
+        p_miembros,
+        p_genitales,
+        p_id_historial_clinico
+    );
+
+    COMMIT;
+
+    SET p_success = TRUE;
+END$$
 
 DELIMITER ;

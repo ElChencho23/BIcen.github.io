@@ -38,6 +38,39 @@ def insertar_historial_clinico(edad, motivo_consulta, padecimiento_actual, resul
     except Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return -1
+    
+def actualizar_historial_clinico(id_historial, edad, motivo_consulta, padecimiento_actual, resultado_laboratorio, 
+                                diagnosticos, tratamiento, fecha, interrogatorio, curp_persona, cedula_medico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarHistorialClinico(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (id_historial, edad, motivo_consulta, padecimiento_actual, resultado_laboratorio, 
+               diagnosticos, tratamiento, fecha, interrogatorio, curp_persona, cedula_medico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar el historial clínico")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
 
 def insertar_antecedentes_familiares(diabetes, hta, oncologicos, couagulopatias, alta_genetica, vih_sida, 
                                     tuberculosis, alergia, cardiopatias, obesidad, artritis, hemofilia, 
@@ -70,6 +103,42 @@ def insertar_antecedentes_familiares(diabetes, hta, oncologicos, couagulopatias,
         else:
             print("Error al insertar los antecedentes familiares")
 
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
+def actualizar_antecedentes_familiares(diabetes, hta, oncologicos, couagulopatias, alta_genetica, vih_sida,
+                                      tuberculosis, alergia, cardiopatias, obesidad, artritis, hemofilia,
+                                      mentales, toxicomanias, alcoholismo, hiperlipidemias, otro, id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarAntecedentesFamiliares(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (diabetes, hta, oncologicos, couagulopatias, alta_genetica, vih_sida,
+               tuberculosis, alergia, cardiopatias, obesidad, artritis, hemofilia,
+               mentales, toxicomanias, alcoholismo, hiperlipidemias, otro, id_historial_clinico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar antecedentes familiares")
+
+        cursor.close()
         return success
 
     except Error as e:
@@ -113,6 +182,42 @@ def insertar_antecedentes_no_patologicos(alimentacion, cantidad_alimentacion, fe
     except Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return False
+    
+def actualizar_antecedentes_no_patologicos(alimentacion, cantidad_alimentacion, fecuencia_alimentacion, habitos_higiene,
+                                           alcoholismo, frecuencia_alcoholismo, tabaquismo, numero_cigarros, drogas,
+                                           tipo_drogas, inmunizaciones, tipo_inmunizaciones, id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # SQL call to the stored procedure
+        sql = """CALL ActualizarAntecedentesNoPatologicos(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parameters for the procedure
+        val = (alimentacion, cantidad_alimentacion, fecuencia_alimentacion, habitos_higiene,
+               alcoholismo, frecuencia_alcoholismo, tabaquismo, numero_cigarros, drogas,
+               tipo_drogas, inmunizaciones, tipo_inmunizaciones, id_historial_clinico)
+
+        # Execute the procedure
+        cursor.execute(sql, val)
+
+        # Get the output parameter @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa en Antecedentes_no_patologicos")
+        else:
+            print("Error al actualizar antecedentes no patológicos")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
     
 def insertar_antecedentes_personales_patologicos(alergia, reumatismo, diabetes, hipertensivo, its, vih_sida, 
                                                 neurologico, infeccion, parasito_intestinal, quirurgico, 
@@ -158,6 +263,49 @@ def insertar_antecedentes_personales_patologicos(alergia, reumatismo, diabetes, 
     except Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return False
+    #28
+def actualizar_antecedentes_personales_patologicos(
+    alergia, reumatismo, diabetes, hipertensivo, its, vih_sida, neurologico, infeccion, 
+    parasito_intestinal, quirurgico, hemotransfusion, cardiopatias, enf_renal, cancer, 
+    anemia, hemorragias, hepatitis, neumopatias, paludismo, fibre_tifoidea, brucelosis, 
+    crisis_convulsivas, enf_mental, traumatico, ulcera, medicamento_actual, otras_patologias, 
+    id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarAntecedentesPersonalesPatologicos(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                    %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (alergia, reumatismo, diabetes, hipertensivo, its, vih_sida, neurologico, infeccion, 
+               parasito_intestinal, quirurgico, hemotransfusion, cardiopatias, enf_renal, cancer, 
+               anemia, hemorragias, hepatitis, neumopatias, paludismo, fibre_tifoidea, brucelosis, 
+               crisis_convulsivas, enf_mental, traumatico, ulcera, medicamento_actual, otras_patologias, 
+               id_historial_clinico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar antecedentes personales patológicos")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
     
 def insertar_antecedentes_gineco_obstetricos(menarca, ritmo, ivsa, cs, mp_f, gesta, para, cesarea, aborto, fum, doc, 
                                             docma, antecedentes_peritenales, id_historial_clinico):
@@ -193,6 +341,41 @@ def insertar_antecedentes_gineco_obstetricos(menarca, ritmo, ivsa, cs, mp_f, ges
     except Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return False
+    
+def actualizar_antecedentes_gineco_obstetricos(
+    menarca, ritmo, ivsa, cs, mp_f, gesta, para, cesarea, aborto, fum, doc, docma, 
+    antecedentes_peritenales, id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarAntecedentesGinecoObstetricos(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (menarca, ritmo, ivsa, cs, mp_f, gesta, para, cesarea, aborto, fum, 
+               doc, docma, antecedentes_peritenales, id_historial_clinico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar antecedentes gineco-obstétricos")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
     
 def insertar_interrogatorio_aparato_sistema(sistomas_generales, respiratorio, digestivo, nervioso, musculoesqueletico, cardiovascular,
                                             genitourinario, endoctrico, psiquico, piel_mucosa, organos_sentidos, hematico_linfatico,
@@ -232,6 +415,45 @@ def insertar_interrogatorio_aparato_sistema(sistomas_generales, respiratorio, di
         print(f"Error al conectar a la base de datos: {e}")
         return False
     
+def actualizar_interrogatorio_aparato_sistema(
+    sintomas_generales, respiratorio, digestivo, nervioso, musculoesqueletico, 
+    cardiovascular, genitourinario, endocrino, psiquico, piel_mucosa, 
+    organos_sentidos, hematologico_linfatico, cabeza_cuello, organos_reproductivos, 
+    id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarInterrogatorioAparatoSistema(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (sintomas_generales, respiratorio, digestivo, nervioso, musculoesqueletico, 
+               cardiovascular, genitourinario, endocrino, psiquico, piel_mucosa, 
+               organos_sentidos, hematologico_linfatico, cabeza_cuello, organos_reproductivos, 
+               id_historial_clinico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar interrogatorio aparato-sistema")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
+    
 def insertar_exploracion_fisica(pulso, temperatura, tension_arterial, frecuencia_cardiaca, frecuencia_respiratoria,
                                 cabeza, cuello, torax, abdomen, miembros, genitales, id_historial_clinico):
     try:
@@ -266,6 +488,41 @@ def insertar_exploracion_fisica(pulso, temperatura, tension_arterial, frecuencia
     except Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return False
+    
+def actualizar_exploracion_fisica(
+    pulso, temperatura, tension_arterial, frecuencia_cardiaca, frecuencia_respiratoria,
+    cabeza, cuello, torax, abdomen, miembros, genitales, id_historial_clinico):
+    try:
+        cursor = connection.cursor()
+
+        # Llamada al procedimiento almacenado
+        sql = """CALL ActualizarExploracionFisica(
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, @success)"""
+        
+        # Parámetros para la ejecución del procedimiento
+        val = (pulso, temperatura, tension_arterial, frecuencia_cardiaca, frecuencia_respiratoria,
+               cabeza, cuello, torax, abdomen, miembros, genitales, id_historial_clinico)
+
+        # Ejecutar el procedimiento
+        cursor.execute(sql, val)
+
+        # Obtener el valor del parámetro de salida @success
+        cursor.execute("SELECT @success")
+        result = cursor.fetchone()
+        success = result[0]
+
+        if success:
+            print("Actualización exitosa")
+        else:
+            print("Error al actualizar exploración física")
+
+        cursor.close()
+        return success
+
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+
 
 @app.route("/")
 def inicio():
@@ -466,46 +723,261 @@ def insertar_historial_medico():
         'ID' : id
     })
     
-@app.route('/Insertar_persona', methods=['POST'])
-def insertar_persona():
+@app.route('/editar_historial_medico/<id>', methods=['POST'])
+def editar_historial_medico(id):
     
-    data = request.get_json()
-    
-    curp = data.get('curp')
-    nombre = data.get('nombre')
-    fecha_nacimiento = data.get('fecha_nacimiento')
-    grupo_sanguineo = data.get('grupo_sanguineo')
-    jurisdiccion = data.get('jurisdiccion')
-    escolaridad = data.get('escolaridad')
-    edad = data.get('edad')
-    sexo = data.get('sexo')
-    estado_civil = data.get('estado_civil')
-    ocupacion = data.get('ocupacion')
-    tipo_seguro = data.get('tipo_seguro')
-    calle = data.get('calle')
-    num = data.get('num')
-    colonia = data.get('colonia')
-    municipio = data.get('municipio')
-    lugar_procedencia = data.get('lugar_procedencia')
-    telefono = data.get('telefono')
-    ageb = data.get('ageb')
-    alergia = data.get('alergia')
-    tipo_alergia = data.get('tipo_alergia')
-    id_unidad_medica = data.get('id_unidad_medica')
+    id_historial = int(id)
+    edad = 49
+    motivo_consulta = "Dolor de cabeza persistente"
+    padecimiento_actual = "Migraña diagnosticada"
+    resultado_laboratorio = "Hemograma normal"
+    diagnosticos = "Migraña"
+    tratamiento = "Analgesia y descanso"
+    fecha = "2024-10-01 10:00:00"
+    interrogatorio = True
+    curp_persona = "ABC123456789"
+    cedula_medico = "MED123456"
+    success = False
+    success = actualizar_historial_clinico(id_historial, edad, motivo_consulta, padecimiento_actual, 
+                                        resultado_laboratorio, diagnosticos, tratamiento, 
+                                        fecha, interrogatorio, curp_persona, cedula_medico)
 
+    if success:
+        print("La actualización fue exitosa de historial.")
+    else:
+        print("Hubo un problema con la actualización de historial.")
     
-    id_historial = insertar_historial(edad, motivo_consulta, padecimiento_actual, resultado_laboratorio,
-                                      diagnosticos, tratamiento, interrogatorio, curp_persona, cedula_medico)
-    
-    estatus = False
-    
-    if id_historial > 0:
-        estatus = True
     
     return jsonify({
-        'Estado' : estatus,
-        'ID' : id_historial
+        'Estado' : success,
+        'ID' : id
     })
+
+@app.route('/editar_antecedentes_familiares/<id>', methods=['POST'])
+def editar_antecedente_familiar(id):
+    
+    id_historial = int(id)
+    diabetes = "No"
+    hta = "Sí"
+    oncologicos = "No"
+    couagulopatias = "No"
+    alta_genetica = "Sí"
+    vih_sida = False
+    tuberculosis = "No"
+    alergia = "Polen"
+    cardiopatias = "Sí"
+    obesidad = "No"
+    artritis = "Sí"
+    hemofilia = "No"
+    mentales = "No"
+    toxicomanias = "No"
+    alcoholismo = "Ocasional"
+    hiperlipidemias = "No"
+    otro = "Sin observaciones"
+
+    # Llamada de ejemplo para actualizar antecedentes familiares
+    success = actualizar_antecedentes_familiares(diabetes, hta, oncologicos, couagulopatias, 
+                                                alta_genetica, vih_sida, tuberculosis, alergia, cardiopatias, 
+                                                obesidad, artritis, hemofilia, mentales, toxicomanias, 
+                                                alcoholismo, hiperlipidemias, otro, id_historial)
+
+    if success:
+        print("La actualización fue exitosa.")
+    else:
+        print("Hubo un problema con la actualización.")
+    
+    
+    return jsonify({
+        'Estado' : success,
+        'ID' : id
+    })
+    
+@app.route('/editar_antecedentes_no_patologicos/<id>', methods=['POST'])
+def editar_antecedente_no_patologico(id):
+    # Convert the id from the URL to an integer
+    id_historial = int(id)
+    
+    # Sample data for updating the record (could be replaced by data from a POST request)
+    alimentacion = "Equilibradaa"
+    cantidad_alimentacion = "Moderada"
+    fecuencia_alimentacion = 3
+    habitos_higiene = "Buenos"
+    alcoholismo = "Social"
+    frecuencia_alcoholismo = "Mensual"
+    tabaquismo = "No"
+    numero_cigarros = "0"
+    drogas = "No"
+    tipo_drogas = ""
+    inmunizaciones = True
+    tipo_inmunizaciones = "Vacuna A, Vacuna B"
+    
+    # Call the method to update the record in the database
+    success = actualizar_antecedentes_no_patologicos(
+        alimentacion, cantidad_alimentacion, fecuencia_alimentacion, habitos_higiene,
+        alcoholismo, frecuencia_alcoholismo, tabaquismo, numero_cigarros, drogas,
+        tipo_drogas, inmunizaciones, tipo_inmunizaciones, id_historial
+    )
+
+    # Return JSON response indicating success or failure
+    return jsonify({
+        'Estado': success,
+        'ID': id
+    })
+
+@app.route('/editar_antecedentes_personales_patologicos/<id>', methods=['POST'])
+def editar_antecedente_personal_patologico(id):
+    id_historial = int(id)
+    
+    # Datos de ejemplo, estos deberían venir del cuerpo de la solicitud (request) en una aplicación real.
+    alergia = "Abejas"
+    reumatismo = "No"
+    diabetes = "Sí"
+    hipertensivo = "No"
+    its = "No"
+    vih_sida = "No"
+    neurologico = "No"
+    infeccion = "Sí"
+    parasito_intestinal = "No"
+    quirurgico = "Sí"
+    hemotransfusion = "No"
+    cardiopatias = "Sí"
+    enf_renal = "No"
+    cancer = "No"
+    anemia = "Sí"
+    hemorragias = "No"
+    hepatitis = "No"
+    neumopatias = "No"
+    paludismo = "No"
+    fibre_tifoidea = "No"
+    brucelosis = "No"
+    crisis_convulsivas = "No"
+    enf_mental = "No"
+    traumatico = "Sí"
+    ulcera = "No"
+    medicamento_actual = "Paracetamol"
+    otras_patologias = "Ninguna"
+
+    # Llamada de ejemplo para actualizar antecedentes personales patológicos
+    success = actualizar_antecedentes_personales_patologicos(
+        alergia, reumatismo, diabetes, hipertensivo, its, vih_sida, neurologico, infeccion, 
+        parasito_intestinal, quirurgico, hemotransfusion, cardiopatias, enf_renal, cancer, 
+        anemia, hemorragias, hepatitis, neumopatias, paludismo, fibre_tifoidea, brucelosis, 
+        crisis_convulsivas, enf_mental, traumatico, ulcera, medicamento_actual, otras_patologias, 
+        id_historial)
+
+    if success:
+        print("La actualización fue exitosa.")
+    else:
+        print("Hubo un problema con la actualización.")
+    
+    return jsonify({
+        'Estado': success,
+        'ID': id
+    })
+
+@app.route('/editar_antecedentes_gineco_obstetricos/<id>', methods=['POST'])
+def editar_antecedente_gineco_obstetrico(id):
+    id_historial = int(id)
+
+    # Datos de ejemplo, estos deberían venir del cuerpo de la solicitud (request) en una aplicación real.
+    menarca = "Menarca a los 11 años"
+    ritmo = "Regular"
+    ivsa = "No"
+    cs = "1"
+    mp_f = "Ninguna"
+    gesta = "2"
+    para = "1"
+    cesarea = "No"
+    aborto = "Sí"
+    fum = "2024-06-15"
+    doc = "2024-01-20"
+    docma = "2023-12-05"
+    antecedentes_peritenales = "Sin antecedentes"
+
+    # Llamada de ejemplo para actualizar antecedentes gineco-obstétricos
+    success = actualizar_antecedentes_gineco_obstetricos(
+        menarca, ritmo, ivsa, cs, mp_f, gesta, para, cesarea, aborto, fum, doc, 
+        docma, antecedentes_peritenales, id_historial)
+
+    if success:
+        print("La actualización fue exitosa.")
+    else:
+        print("Hubo un problema con la actualización.")
+    
+    return jsonify({
+        'Estado': success,
+        'ID': id
+    })
+
+@app.route('/editar_interrogatorio_aparato_sistema/<id>', methods=['POST'])
+def editar_interrogatorio_aparato_sistema(id):
+    id_historial = int(id)
+
+    # Datos de ejemplo, estos deberían venir del cuerpo de la solicitud (request) en una aplicación real.
+    sintomas_generales = "Son síntomas generales"
+    respiratorio = "Normal"
+    digestivo = "Normal"
+    nervioso = "Sin alteraciones"
+    musculoesqueletico = "Sin alteraciones"
+    cardiovascular = "Sin alteraciones"
+    genitourinario = "Normal"
+    endocrino = "Normal"
+    psiquico = "Estable"
+    piel_mucosa = "Normal"
+    organos_sentidos = "Sin alteraciones"
+    hematologico_linfatico = "Sin alteraciones"
+    cabeza_cuello = "Sin alteraciones"
+    organos_reproductivos = "Normal"
+
+    # Llamada de ejemplo para actualizar interrogatorio aparato-sistema
+    success = actualizar_interrogatorio_aparato_sistema(
+        sintomas_generales, respiratorio, digestivo, nervioso, musculoesqueletico, 
+        cardiovascular, genitourinario, endocrino, psiquico, piel_mucosa, 
+        organos_sentidos, hematologico_linfatico, cabeza_cuello, organos_reproductivos, 
+        id_historial)
+
+    if success:
+        print("La actualización fue exitosa.")
+    else:
+        print("Hubo un problema con la actualización.")
+    
+    return jsonify({
+        'Estado': success,
+        'ID': id
+    })
+    
+@app.route('/editar_exploracion_fisica/<id>', methods=['POST'])
+def editar_exploracion_fisica(id):
+    id_historial = int(id)
+
+    # Datos de ejemplo, estos deberían venir del cuerpo de la solicitud (request) en una aplicación real.
+    pulso = 72.5
+    temperatura = 36.7
+    tension_arterial = 120.0
+    frecuencia_cardiaca = 75.0
+    frecuencia_respiratoria = 18.0
+    cabeza = "Normal"
+    cuello = "Normal"
+    torax = "Normal"
+    abdomen = "Normal"
+    miembros = "Normal"
+    genitales = "Normal"
+
+    # Llamada de ejemplo para actualizar exploración física
+    success = actualizar_exploracion_fisica(
+        pulso, temperatura, tension_arterial, frecuencia_cardiaca, frecuencia_respiratoria,
+        cabeza, cuello, torax, abdomen, miembros, genitales, id_historial)
+
+    if success:
+        print("La actualización fue exitosa.")
+    else:
+        print("Hubo un problema con la actualización.")
+    
+    return jsonify({
+        'Estado': success,
+        'ID': id
+    })
+    
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
